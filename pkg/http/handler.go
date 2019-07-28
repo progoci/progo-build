@@ -3,54 +3,80 @@ package http
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	http1 "github.com/go-kit/kit/transport/http"
-	endpoint "github.com/progoci/progo/services/container/pkg/endpoint"
 	"net/http"
+
+	"github.com/go-kit/kit/log"
+	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
+
+	"progo/build/pkg/endpoint"
+	"progo/build/pkg/service"
 )
 
-// makeCreateHandler creates the handler logic
-func makeCreateHandler(m *http.ServeMux, endpoints endpoint.Endpoints, options []http1.ServerOption) {
-	m.Handle("/create", http1.NewServer(endpoints.CreateEndpoint, decodeCreateRequest, encodeCreateResponse, options...))
+// NewService wires endpoints to the HTTP transport.
+func NewService(svcEndpoints endpoint.Endpoints, logger log.Logger) http.Handler {
+
+	r := mux.NewRouter()
+	options := []kithttp.ServerOption{
+		kithttp.ServerErrorLogger(logger),
+		kithttp.ServerErrorEncoder(encodeError),
+	}
+
+	r.Methods("POST").Path("/build").Handler(kithttp.NewServer(
+		svcEndpoints.Create,
+		decodeCreateRequest,
+		encodeResponse,
+		options...,
+	))
+
+	return r
 }
 
-// decodeCreateRequest is a transport/http.DecodeRequestFunc that decodes a
-// JSON-encoded request from the HTTP request body.
-func decodeCreateRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	req := endpoint.CreateRequest{}
-	err := json.NewDecoder(r.Body).Decode(&req)
-	return req, err
+type errorer interface {
+	error() error
 }
 
-// encodeCreateResponse is a transport/http.EncodeResponseFunc that encodes
-// the response as JSON to the response writer
-func encodeCreateResponse(ctx context.Context, w http.ResponseWriter, response interface{}) (err error) {
-	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
-		ErrorEncoder(ctx, f.Failed(), w)
+func decodeCreateRequest(_ context.Context,
+	r *http.Request) (request interface{}, err error) {
+
+	var req endpoint.CreateRequest
+	if e := json.NewDecoder(r.Body).Decode(&req.Build); e != nil {
+		return nil, e
+	}
+
+	return req, nil
+}
+
+func encodeResponse(ctx context.Context, w http.ResponseWriter,
+	response interface{}) error {
+
+	if e, ok := response.(errorer); ok && e.error() != nil {
+		// Not transport error, but a business-logic error.
+		// Provide those as HTTP errors.
+		encodeError(ctx, e.error(), w)
 		return nil
 	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	err = json.NewEncoder(w).Encode(response)
-	return
+	return json.NewEncoder(w).Encode(response)
 }
-func ErrorEncoder(_ context.Context, err error, w http.ResponseWriter) {
-	w.WriteHeader(err2code(err))
-	json.NewEncoder(w).Encode(errorWrapper{Error: err.Error()})
-}
-func ErrorDecoder(r *http.Response) error {
-	var w errorWrapper
-	if err := json.NewDecoder(r.Body).Decode(&w); err != nil {
-		return err
+
+func encodeError(_ context.Context, err error, w http.ResponseWriter) {
+	if err == nil {
+		panic("encodeError with nil error")
 	}
-	return errors.New(w.Error)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(codeFrom(err))
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"error": err.Error(),
+	})
 }
 
-// This is used to set the http status, see an example here :
-// https://github.com/go-kit/kit/blob/master/examples/addsvc/pkg/addtransport/http.go#L133
-func err2code(err error) int {
-	return http.StatusInternalServerError
-}
-
-type errorWrapper struct {
-	Error string `json:"error"`
+func codeFrom(err error) int {
+	switch err {
+	case service.ErrBuildNotFound:
+		return http.StatusBadRequest
+	default:
+		return http.StatusInternalServerError
+	}
 }

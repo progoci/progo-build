@@ -1,7 +1,5 @@
 FROM golang:stretch
 
-RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-RUN go get  github.com/canthefason/go-watcher
-RUN go install github.com/canthefason/go-watcher/cmd/watcher
+RUN go get github.com/pilu/fresh
 
 CMD [ "./.docker/scripts/dev.initialize.sh" ]

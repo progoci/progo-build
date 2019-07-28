@@ -1,29 +1,32 @@
 package service
 
-import "context"
+import (
+	"context"
+	"errors"
 
-// ContainerService describes the container service.
-type ContainerService interface {
-	Create(ctx context.Context, s string) error
+	"progo/build/pkg/entity"
+)
+
+var (
+	// ErrBuildNotFound is thrown when build was not found.
+	ErrBuildNotFound = errors.New("build not found")
+)
+
+// Build describes the build service.
+type Build interface {
+	Create(ctx context.Context, build entity.Build) (string, error)
 }
 
-type basicContainerService struct{}
+type buildService struct{}
 
-func (b *basicContainerService) Create(ctx context.Context, s string) (e0 error) {
-	// TODO implement the business logic of Create
-	return e0
+// NewBuild creates a new build service.
+func NewBuild() Build {
+	return &buildService{}
 }
 
-// NewBasicContainerService returns a naive, stateless implementation of ContainerService.
-func NewBasicContainerService() ContainerService {
-	return &basicContainerService{}
-}
+// Create stores a new build entity.
+func (c *buildService) Create(ctx context.Context,
+	container entity.Build) (string, error) {
 
-// New returns a ContainerService with all of the expected middleware wired in.
-func New(middleware []Middleware) ContainerService {
-	var svc ContainerService = NewBasicContainerService()
-	for _, m := range middleware {
-		svc = m(svc)
-	}
-	return svc
+	return "id", nil
 }

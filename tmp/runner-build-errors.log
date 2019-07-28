@@ -1,0 +1,2 @@
+# progo/container/pkg/endpoint
+pkg/endpoint/create.go:14:12: undefined: entity.Container
