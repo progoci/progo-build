@@ -19,14 +19,7 @@ type Build interface {
 
 type buildService struct{}
 
-// NewBuild creates a new build service.
-func NewBuild() Build {
+// NewBuildService creates a new build service.
+func NewBuildService() Build {
 	return &buildService{}
-}
-
-// Create stores a new build entity.
-func (c *buildService) Create(ctx context.Context,
-	container entity.Build) (string, error) {
-
-	return "id", nil
 }
