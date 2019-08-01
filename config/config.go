@@ -8,7 +8,11 @@ import (
 
 // Init loads a .env file in root directory.
 func Init() {
-	godotenv.Load()
+	err := godotenv.Load()
+
+	if err != nil {
+		panic("Could not load .env file" + err.Error())
+	}
 }
 
 // Get retrieves a environment variable.

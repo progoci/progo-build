@@ -40,5 +40,6 @@ func Run(port string) {
 		Addr:    *httpAddr,
 		Handler: h,
 	}
-	server.ListenAndServe()
+
+	logger.Log("err", server.ListenAndServe())
 }
