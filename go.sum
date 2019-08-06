@@ -32,6 +32,7 @@ github.com/docker/docker v0.7.3-0.20190731150326-928381b2215c h1:dpBq1gZcWeIwwK1
 github.com/docker/docker v0.7.3-0.20190731150326-928381b2215c/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/docker/docker v0.7.3-0.20190803002158-fbc3c06c769d h1:awsYStAGY+2c+XLAkjWog+mfwVY8g8A7Fq/s8LJerfI=
 github.com/docker/docker v0.7.3-0.20190803002158-fbc3c06c769d/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
+github.com/docker/docker v1.13.1 h1:IkZjBSIc8hBjLpqeAbeE5mca5mNgeatLHBy3GO78BWo=
 github.com/docker/go-connections v0.4.0 h1:El9xVISelRB7BuFusrZozjnkIM5YnzCViNKohAFqRJQ=
 github.com/docker/go-connections v0.4.0/go.mod h1:Gbd7IOopHjR8Iph03tsViu4nIes5XhDvyHbTtUxmeec=
 github.com/docker/go-events v0.0.0-20170721190031-9461782956ad h1:VXIse57M5C6ezDuCPyq6QmMvEJ2xclYKZ35SfkXdm3E=
