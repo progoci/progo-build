@@ -2,7 +2,6 @@ package docker
 
 import (
 	"context"
-	"log"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
@@ -12,7 +11,9 @@ import (
 	"progo/build/pkg/utils"
 )
 
-func createContainer(ctx context.Context, cli Client, build *entity.Build) (string, error) {
+func createContainer(ctx context.Context, cli Client,
+	build *entity.Build) (*entity.Container, error) {
+
 	uuid := utils.GetUUID()
 	host := uuid + "." + config.Get("DEFAULT_HOST")
 	networkID := config.Get("DOCKER_NETWORK")
@@ -31,13 +32,14 @@ func createContainer(ctx context.Context, cli Client, build *entity.Build) (stri
 		},
 	}
 
-	log.Print(host)
-
 	// Creates a new container.
 	newContainer, err := cli.ContainerCreate(ctx, containerConfig, nil, networkConfig, "")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return newContainer.ID, nil
+	return &entity.Container{
+		ID:   newContainer.ID,
+		Host: host,
+	}, nil
 }

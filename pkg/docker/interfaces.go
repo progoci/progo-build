@@ -14,6 +14,12 @@ type Client interface {
 		hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig,
 		containerName string) (container.ContainerCreateCreatedBody, error)
 
+	ContainerExecCreate(ctx context.Context, container string,
+		config types.ExecConfig) (types.IDResponse, error)
+
+	ContainerExecStart(ctx context.Context, execID string,
+		config types.ExecStartCheck) error
+
 	ContainerStart(ctx context.Context, containerID string,
 		options types.ContainerStartOptions) error
 }
