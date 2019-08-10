@@ -23,7 +23,7 @@ type CreateResponse struct {
 func makeCreateEndpoint(s service.Build) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(CreateRequest)
-		id, err := s.Create(ctx, req.Build)
+		id, err := s.Create(ctx, &req.Build)
 
 		return CreateResponse{ID: id, Err: err}, nil
 	}

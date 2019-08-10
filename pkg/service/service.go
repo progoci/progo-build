@@ -14,7 +14,7 @@ var (
 
 // Build describes the build service.
 type Build interface {
-	Create(ctx context.Context, build entity.Build) (string, error)
+	Create(ctx context.Context, build *entity.Build) (string, error)
 }
 
 type buildService struct{}

@@ -16,7 +16,7 @@ type loggingMiddleware struct {
 }
 
 func (mw loggingMiddleware) Create(ctx context.Context,
-	build entity.Build) (output string, err error) {
+	build *entity.Build) (output string, err error) {
 
 	defer func(begin time.Time) {
 		mw.logger.Log(
