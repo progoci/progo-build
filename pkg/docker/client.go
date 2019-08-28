@@ -1,13 +1,21 @@
+// The hierarchy is as follows:
+// A Progo build corresponds to a single Docker container
+// A build can have multiple steps or tasks (install all packages needed for
+// testing, seed the database, run all tests, etc).
+// A task can have multiple commands which are basically OS processes (cd, ls,
+// apt-get install, etc.).
+
 package docker
 
 import (
 	"context"
 	"errors"
 
-	"github.com/docker/docker/api/types"
+	dockerTypes "github.com/docker/docker/api/types"
 
 	"progo/build/pkg/entity"
-	"progo/build/pkg/log"
+	"progo/build/pkg/types"
+	"progo/core/log"
 )
 
 // NewContainer creates a new Docker container and runs it.
@@ -24,7 +32,7 @@ func NewContainer(ctx context.Context, cli Client,
 	}
 
 	// Runs the container.
-	err = cli.ContainerStart(ctx, newContainer.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(ctx, newContainer.ID, dockerTypes.ContainerStartOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -34,29 +42,16 @@ func NewContainer(ctx context.Context, cli Client,
 	return newContainer, nil
 }
 
-// RunTasks run the setup tasks in config file.
-func RunTasks(ctx context.Context, cli Client, container *entity.Container,
-	cmds []string) error {
+// RunTasks runs all the steps set in the config file.
+func RunTasks(ctx context.Context, cli Client, loomConn types.LoomSocket,
+	container *entity.Container, build *entity.Build) error {
 
-	exec, err := cli.ContainerExecCreate(ctx, container.ID, types.ExecConfig{
-		Cmd:        cmds,
-		Privileged: true,
-		Detach:     true,
-	})
-	if err != nil {
-		log.Print("error", "Error creating exec instance", err)
-		return err
+	// Creates a new BuildLogs.
+	logs := &types.BuildLogs{BuildID: build.ID}
+
+	for _, task := range build.Tasks {
+		return runTask(ctx, cli, logs, container, &task)
 	}
-
-	err = cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{
-		Detach: true,
-	})
-	if err != nil {
-		log.Print("error", "Error starting exec instance", err)
-		return err
-	}
-
-	log.Print("info", "Exec info", exec)
 
 	return nil
 }

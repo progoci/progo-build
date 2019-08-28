@@ -14,7 +14,7 @@ import (
 
 	"progo/build/pkg/docker"
 	"progo/build/pkg/entity"
-	"progo/build/pkg/log"
+	"progo/core/log"
 )
 
 // Create stores a new build entity.
@@ -31,8 +31,11 @@ func (b *buildService) Create(ctx context.Context,
 		log.Print("error", "Error creating new container", err)
 		return "", err
 	}
+	build.ID = container.ID
 
-	// Runs every instruction in a goroutine.
+	loomConn = newWebSocketConnection()
+
+	// Runs build in a goroutine.
 	go runAll(cli, container, build)
 
 	return container.ID, nil
@@ -41,7 +44,7 @@ func (b *buildService) Create(ctx context.Context,
 func runAll(cli docker.Client, container *entity.Container,
 	build *entity.Build) {
 
-	err := RunTasks(context.Background(), cli, container, []string{})
+	err := docker.RunTasks(context.Background(), cli, loomConn, build)
 	if err != nil {
 		log.Print("error", "Error running tasks", err)
 

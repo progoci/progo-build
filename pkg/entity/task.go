@@ -2,17 +2,18 @@ package entity
 
 import "fmt"
 
-// step describes a step in the running process in a build.
-type step struct {
+// Task describes a step in the running process in a build.
+type Task struct {
 	Name     string                 `json:"name"`
 	Plugin   string                 `json:"plugin"`
 	Commands []string               `json:"commands"`
 	Options  map[string]interface{} `json:"options"`
+	UUID     string									`json:"uuid"`
 }
 
-func (s step) String() string {
+func (t Task) String() string {
 	return fmt.Sprintf(`{
 		name: %s
 		plugin: %s
-	}`, s.Name, s.Plugin)
+	}`, t.Name, t.Plugin)
 }

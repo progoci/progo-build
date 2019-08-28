@@ -12,7 +12,7 @@ func TestBuildDecoding(t *testing.T) {
 
 	encoded := []byte(`{
 		"image": "progoci/ubuntu-18.04:php-7.2",
-		"steps": [
+		"Tasks": [
 			{
 				"name": "Step 1",
 				"plugin": "Shell",
@@ -40,8 +40,8 @@ func TestBuildDecoding(t *testing.T) {
 	}
 
 	assert.Equal("progoci/ubuntu-18.04:php-7.2", b.Image)
-	assert.Equal("Step 1", b.Steps[0].Name)
-	assert.Equal("Shell", b.Steps[0].Plugin)
-	assert.Equal("ls -al", b.Steps[0].Commands[0])
-	assert.Equal(true, b.Steps[1].Options["option1"].(bool))
+	assert.Equal("Step 1", b.Tasks[0].Name)
+	assert.Equal("Shell", b.Tasks[0].Plugin)
+	assert.Equal("ls -al", b.Tasks[0].Commands[0])
+	assert.Equal(true, b.Tasks[1].Options["option1"].(bool))
 }
