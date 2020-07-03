@@ -2,78 +2,71 @@ package docker
 
 import (
 	"context"
-	"time"
 
-	dockerTypes "github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types"
 
-	"progo/build/pkg/entity"
-	"progo/build/pkg/types"
-	"progo/build/pkg/utils"
-	"progo/core/log"
+	"github.com/progoci/progo-build/internal/entity"
 )
 
 // buffer is the size of the build logs.
 const bufferSize = 1024
 
 // runTask runs a single step in a build.
-func runTask(ctx context.Context, cli Client, logs *types.BuildLogs,
-	container *entity.Container, task *entity.Task) error {
+func runTask(ctx context.Context, cli Client, container *Container, task *entity.Task) error {
 
 	// Each task has its own UUID which is used to retrieve its logs.
-	taskUUID := utils.GetUUID()
-	logs.TaskUUID = taskUUID
+	//taskUUID := uuid.Get()
+	//logs.TaskUUID = taskUUID
 
 	for _, c := range task.Commands {
 		cmd := []string{"/bin/bash", "-c", c}
 
-		runCommand(ctx, cli, logs, container, cmd)
+		runCommand(ctx, cli, container, cmd)
 	}
 
 	return nil
 }
 
 // runCommand executes a single linux command.
-func runCommand(ctx context.Context, cli Client, logs *types.BuildLogs,
-	container *entity.Container, cmd []string) error {
+func runCommand(ctx context.Context, cli Client, container *Container, cmd []string) error {
 
 	// Creates the instance of the process to run.
-	exec, err := cli.ContainerExecCreate(ctx, container.ID, dockerTypes.ExecConfig{
+	/*exec, err := cli.ContainerExecCreate(ctx, container.ID, types.ExecConfig{
 		AttachStdout: true,
 		AttachStderr: true,
 		Cmd:          cmd,
 		Privileged:   true,
 	})
 	if err != nil {
-		log.Print("error", "Error creating exec instance", err)
+		//log.Print("error", "Error creating exec instance", err)
 		return err
 	}
 
 	// Starts created exec instance and attaches stdout and stderr.
-	response, err := cli.ContainerExecAttach(ctx, exec.ID, dockerTypes.ExecStartCheck{})
+	response, err := cli.ContainerExecAttach(ctx, exec.ID, types.ExecConfig{})
 	if err != nil {
-		log.Print("error", "Error starting exec instance", err)
+		//log.Print("error", "Error starting exec instance", err)
 		return err
 	}
 
 	// We use cmd[2] to get the actual user input command since we're running
 	// all commands under bash as /bin/bash -c <command>.
-	logs.Cmd = cmd[2]
-	logs.CmdID = exec.ID
-	logs.First = true
+	//logs.Cmd = cmd[2]
+	//logs.CmdID = exec.ID
+	//logs.First = true
 
-	log.Print("info", "Exec info", exec)
+	//log.Print("info", "Exec info", exec)
 
-	storeLogs(ctx, cli, logs, &response)
+	storeLogs(ctx, cli, &response)*/
 
 	return nil
 }
 
 // Keeps reading the stdout and stderr output of a Docker exec instance until
 // the process finishes.
-func storeLogs(ctx context.Context, cli Client, logs *types.BuildLogs,
-	response *dockerTypes.HijackedResponse) {
+func storeLogs(ctx context.Context, cli Client, response *types.HijackedResponse) {
 
-	proc, _ := cli.ContainerExecInspect(ctx, logs.CmdID)
+	/*proc, _ := cli.ContainerExecInspect(ctx, logs.CmdID)
 
 	// While we haven't read all the output or the process is still running, keep
 	// getting and storing output into the logs.
@@ -105,15 +98,15 @@ func storeLogs(ctx context.Context, cli Client, logs *types.BuildLogs,
 			time.Sleep(2 * time.Second)
 		}
 
-	}
+	}*/
 
-	log.Print("info", "Process info", proc.ExitCode, proc.Running)
+	//log.Print("info", "Process info", proc.ExitCode, proc.Running)
 }
 
 // Stores the stdout and stderr outputs into the log database.
 // We use cmd[2] to get the actual user input command since we're running
 // all commands under bash as /bin/bash -c <command>.
-func sendLogs(logs *types.BuildLogs, buf []byte) error {
-
-	return logs.AppendCommandOutput(buildID, taskUUID, execID, buf)
+func sendLogs(buf []byte) error {
+	return nil
+	//return logs.AppendCommandOutput(buildID, taskUUID, execID, buf)
 }

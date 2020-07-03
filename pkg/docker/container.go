@@ -3,43 +3,47 @@ package docker
 import (
 	"context"
 
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-
-	"progo/build/pkg/entity"
-	"progo/build/pkg/utils"
-	"progo/core/config"
 )
 
-func createContainer(ctx context.Context, cli Client,
-	build *entity.Build) (*entity.Container, error) {
+// Container describes a new container.
+type Container struct {
+	ID      string // The container ID (assigned at creation by Docker).
+	Name    string
+	Host    string // The virtualhost where the live site is accessible from (used by nginx-proxy).
+	Network string
+}
 
-	uuid := utils.GetUUID()
-	host := uuid + "." + config.Get("DEFAULT_HOST")
-	networkID := config.Get("DOCKER_NETWORK")
+// CreateOpts are the parameter to ContainerCreate
+type CreateOpts struct {
+	Config           *container.Config
+	HostConfig       *container.HostConfig
+	NetworkingConfig *network.NetworkingConfig
+	ContainerName    string
+}
 
-	containerConfig := &container.Config{
-		Image: build.Image,
-		Env:   []string{"VIRTUAL_HOST=" + host},
+// ContainerConfig generates a configuration for creating a container.
+func (client *Client) ContainerConfig(image string, virtualhost string) *container.Config {
+	return &container.Config{
+		Image: image,
+		Env:   []string{"VIRTUAL_HOST=" + virtualhost},
 		Tty:   true,
 	}
+}
 
-	networkConfig := &network.NetworkingConfig{
-		EndpointsConfig: map[string]*network.EndpointSettings{
-			"net": &network.EndpointSettings{
-				NetworkID: networkID,
-			},
-		},
-	}
-
-	// Creates a new container.
-	newContainer, err := cli.ContainerCreate(ctx, containerConfig, nil, networkConfig, "")
+// ContainerCreate creates a new container.
+func (client *Client) ContainerCreate(ctx context.Context, opts *CreateOpts) (string, error) {
+	res, err := client.Conn.ContainerCreate(ctx, opts.Config, opts.HostConfig, opts.NetworkingConfig, opts.ContainerName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &entity.Container{
-		ID:   newContainer.ID,
-		Host: host,
-	}, nil
+	return res.ID, nil
+}
+
+// ContainerStart starts a container.
+func (client *Client) ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error {
+	return client.Conn.ContainerStart(ctx, containerID, options)
 }

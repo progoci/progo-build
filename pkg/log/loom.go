@@ -1,16 +1,18 @@
-package loom
+package progolog
 
 import (
 	"net/url"
 
 	"github.com/gorilla/websocket"
-
-	"progo/core/config"
 )
+
+// LogsSocket describes a WebSocket connection to the logs service.
+type LogsSocket interface {
+}
 
 // Returns a websocket connection to the loom service.
 func newLoomConnection() *websocket.Conn {
-	host := config.Get("LOOM_HOST") + ":" + config.Get("LOOM_PORT")
+	host := "" //config.Get("LOOM_HOST") + ":" + config.Get("LOOM_PORT")
 	u := url.URL{Scheme: "ws", Host: host, Path: "/store"}
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)

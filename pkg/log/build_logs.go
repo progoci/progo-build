@@ -1,4 +1,4 @@
-package types
+package progolog
 
 // BuildLogs represent the message sent to the Loom service to store logs for
 // a build.

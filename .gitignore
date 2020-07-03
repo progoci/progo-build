@@ -1,5 +1,7 @@
 .env
+core/
 vendor/
 vendor.orig/
 tmp/
-build
+
+server

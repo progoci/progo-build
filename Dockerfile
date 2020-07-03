@@ -1,5 +1,9 @@
-FROM golang:stretch
+FROM golang:1.14-stretch
 
-RUN go get github.com/pilu/fresh
+RUN mkdir /app
 
-CMD [ "./.docker/scripts/dev.initialize.sh" ]
+COPY . /app
+
+RUN go get github.com/githubnemo/CompileDaemon
+
+ENTRYPOINT CompileDaemon -log-prefix=false -build="go build -mod=readonly -o server" -command="./server"

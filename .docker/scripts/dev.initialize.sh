@@ -1,5 +1,5 @@
 #!/bin/bash
 
-test ! -e dev.env && cp .docker/env/dev.env dev.env
+test ! -e .env && cp .docker/env/dev.env .env
 
 fresh
