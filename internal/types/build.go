@@ -1,9 +1,9 @@
-package entity
+package types
 
 import "fmt"
 
-// Task describes a step in the running process in a build.
-type Task struct {
+// Step describes a step in the running process in a build.
+type Step struct {
 	Name     string                 `json:"name"`
 	Plugin   string                 `json:"plugin"`
 	Commands []string               `json:"commands"`
@@ -15,10 +15,10 @@ type Task struct {
 type Build struct {
 	ID    string `json:"id,omitempty"`
 	Image string `json:"image"`
-	Tasks []Task `json:"steps"`
+	Steps []Step `json:"steps"`
 }
 
-func (t *Task) String() string {
+func (t *Step) String() string {
 	return fmt.Sprintf(`{
 		name: %s
 		plugin: %s
@@ -28,6 +28,6 @@ func (t *Task) String() string {
 func (b *Build) String() string {
 	return fmt.Sprintf(`{
 		image: %s,
-		steps %s,
-	}`, b.Image, b.Tasks)
+		steps %v,
+	}`, b.Image, b.Steps)
 }

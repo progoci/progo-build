@@ -7,14 +7,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/progoci/progo-build/internal/app"
-	"github.com/progoci/progo-build/internal/entity"
+	"github.com/progoci/progo-build/internal/types"
 	"github.com/progoci/progo-build/pkg/build"
 )
 
 func createHandler(app *app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		var requestBody entity.Build
+		var requestBody types.Build
 		c.BindJSON(&requestBody)
 
 		buildID := primitive.NewObjectID()
@@ -26,15 +26,27 @@ func createHandler(app *app.App) gin.HandlerFunc {
 			BuildID:           buildID.Hex(),
 		}
 
-		buildResponse, err := app.Build.Setup(context.Background(), opts)
+		ctx := context.Background()
+
+		buildResponse, err := app.Build.Setup(ctx, opts)
 		if err != nil {
-			app.Log.Errorf("Could not create or start container: %s", err)
+			app.Log.Errorf("Could not setup build %s: %s", buildID.Hex(), err)
 
 			c.JSON(500, ServerErrorResponse{
 				code:    500,
-				message: "Could not create container",
+				message: "Could not set up build",
 			})
 			return
+		}
+
+		err = app.Build.Run(ctx, buildResponse.ContainerIDs[0], requestBody.Steps)
+		if err != nil {
+			c.JSON(500, ServerErrorResponse{
+				code:    500,
+				message: "Could not execute steps",
+			})
+
+			app.Log.Errorf("Could not run steps for build %s: %s", buildID.Hex(), err)
 		}
 
 		app.Log.Infof("Build running at %s", buildResponse.VirtualHost)

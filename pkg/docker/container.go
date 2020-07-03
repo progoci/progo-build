@@ -25,7 +25,7 @@ type CreateOpts struct {
 }
 
 // ContainerConfig generates a configuration for creating a container.
-func (client *Client) ContainerConfig(image string, virtualhost string) *container.Config {
+func (Client) ContainerConfig(image string, virtualhost string) *container.Config {
 	return &container.Config{
 		Image: image,
 		Env:   []string{"VIRTUAL_HOST=" + virtualhost},
@@ -34,8 +34,8 @@ func (client *Client) ContainerConfig(image string, virtualhost string) *contain
 }
 
 // ContainerCreate creates a new container.
-func (client *Client) ContainerCreate(ctx context.Context, opts *CreateOpts) (string, error) {
-	res, err := client.Conn.ContainerCreate(ctx, opts.Config, opts.HostConfig, opts.NetworkingConfig, opts.ContainerName)
+func (cli *Client) ContainerCreate(ctx context.Context, opts *CreateOpts) (string, error) {
+	res, err := cli.Conn.ContainerCreate(ctx, opts.Config, opts.HostConfig, opts.NetworkingConfig, opts.ContainerName)
 	if err != nil {
 		return "", err
 	}
@@ -44,6 +44,22 @@ func (client *Client) ContainerCreate(ctx context.Context, opts *CreateOpts) (st
 }
 
 // ContainerStart starts a container.
-func (client *Client) ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error {
-	return client.Conn.ContainerStart(ctx, containerID, options)
+func (cli *Client) ContainerStart(ctx context.Context, containerID string,
+	options types.ContainerStartOptions) error {
+
+	return cli.Conn.ContainerStart(ctx, containerID, options)
+}
+
+// ContainerExecCreate runs a new command in a running container.
+func (cli *Client) ContainerExecCreate(ctx context.Context, container string,
+	config types.ExecConfig) (types.IDResponse, error) {
+
+	return cli.Conn.ContainerExecCreate(ctx, container, config)
+}
+
+// ContainerExecAttach attaches a connection to an exec process in the server
+func (cli *Client) ContainerExecAttach(ctx context.Context, execID string,
+	config types.ExecConfig) (types.HijackedResponse, error) {
+
+	return cli.Conn.ContainerExecAttach(ctx, execID, config)
 }

@@ -4,16 +4,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/docker/docker/api/types"
+	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/pkg/errors"
 	"github.com/progoci/progo-core/uuid"
 
+	"github.com/progoci/progo-build/internal/types"
 	"github.com/progoci/progo-build/pkg/docker"
+	"github.com/progoci/progo-build/pkg/plugin"
 )
 
 // Build is the build manager that creates docker networks and containers.
 type Build struct {
-	DockerClient docker.Docker
+	DockerClient  docker.Docker
+	PluginManager *plugin.Manager
 }
 
 // Opts is the configuration to crate a new build.
@@ -35,15 +38,18 @@ type Response struct {
 }
 
 // New initilizes a new build manager.
-func New(docker docker.Docker) *Build {
+func New(docker docker.Docker, pluginManager *plugin.Manager) *Build {
 	return &Build{
-		DockerClient: docker,
+		DockerClient:  docker,
+		PluginManager: pluginManager,
 	}
 }
 
 // Setup performs all the docker-related tasks to fire up a new build.
 //
-// It creates a Docker network for the build, adds the networ
+// It creates a Docker network for the build to avoid communication between
+// containers from different builds. It then create the containers for the build
+// and start them.
 func (b *Build) Setup(ctx context.Context, opts *Opts) (*Response, error) {
 
 	if _, ok := availableImages[opts.Image]; !ok {
@@ -70,7 +76,7 @@ func (b *Build) Setup(ctx context.Context, opts *Opts) (*Response, error) {
 		return nil, fmt.Errorf("could not create container: %w", err)
 	}
 
-	err = b.DockerClient.ContainerStart(ctx, containerID, types.ContainerStartOptions{})
+	err = b.DockerClient.ContainerStart(ctx, containerID, dockerTypes.ContainerStartOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("could not start container %s: %w", containerID, err)
 	}
@@ -80,4 +86,13 @@ func (b *Build) Setup(ctx context.Context, opts *Opts) (*Response, error) {
 		VirtualHost:  virtualhost,
 		ContainerIDs: []string{containerID},
 	}, nil
+}
+
+// Run executes the steps in the configuration.
+func (b *Build) Run(ctx context.Context, containerID string, steps []types.Step) error {
+	for _, step := range steps {
+		return b.PluginManager.Run(ctx, containerID, step)
+	}
+
+	return nil
 }

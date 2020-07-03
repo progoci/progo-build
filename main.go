@@ -12,6 +12,7 @@ import (
 	"github.com/progoci/progo-build/pkg/build"
 	"github.com/progoci/progo-build/pkg/database"
 	"github.com/progoci/progo-build/pkg/docker"
+	"github.com/progoci/progo-build/pkg/plugin"
 	"github.com/progoci/progo-core/config"
 )
 
@@ -38,14 +39,17 @@ func main() {
 		logger.Fatalf("could not establish connection to Docker daemon")
 	}
 
+	// Plugin Manager.
+	pluginManager := plugin.NewManager(dockerClient)
+	pluginManager.Add("Command", plugin.NewCommand())
+
 	// Build.
-	build := build.New(dockerClient)
+	build := build.New(dockerClient, pluginManager)
 
 	app := &app.App{
 		Config:   config,
 		Build:    build,
 		Database: database,
-		Docker:   dockerClient,
 		Log:      logger,
 	}
 
