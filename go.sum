@@ -102,6 +102,7 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/progoci/progo-core v0.0.0-20200703210147-b5e9f8fc24ff h1:FF7VxHvPc543y8mzGT1EMFFFTFrenoITdVTjxQC7m+4=
 github.com/progoci/progo-core v0.0.0-20200703210147-b5e9f8fc24ff/go.mod h1:vLld0KRWGMDHyXX0tswPjtdnljNE8wiYGZObNzOkjGU=
+github.com/progoci/progo-log v0.0.0-20190901033526-59d465159714 h1:8/YX4d5ZCCx0eNhnCaEQGy8+t5e1pS8OuTHghLwvu4g=
 github.com/rogpeppe/go-internal v1.1.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.2.2/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=

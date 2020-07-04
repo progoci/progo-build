@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,7 @@ func main() {
 		Log:      logger,
 	}
 
-	port := ":" + config.Get("HOST_PORT")
+	port := fmt.Sprintf(":%s", config.Get("HOST_PORT"))
 
 	r := gin.Default()
 	r = router.BuildRoutes(r, app)

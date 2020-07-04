@@ -2,9 +2,9 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -31,7 +31,7 @@ func StartConnection(opts *Opts) (*mongo.Database, error) {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, errors.Wrap(err, "failed to connect to database")
 	}
 
 	return client.Database(opts.Database), nil

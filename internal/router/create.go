@@ -3,9 +3,9 @@ package router
 import (
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/gin-gonic/gin"
 	"github.com/progoci/progo-build/internal/app"
 	"github.com/progoci/progo-build/internal/types"
 	"github.com/progoci/progo-build/pkg/build"

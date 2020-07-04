@@ -2,9 +2,6 @@ module github.com/progoci/progo-build
 
 go 1.14
 
-// For development
-// replace github.com/progoci/progo-core => ./core
-
 require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
@@ -19,3 +16,6 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	go.mongodb.org/mongo-driver v1.3.4
 )
+
+// For development
+replace github.com/progoci/progo-core => ../../core
