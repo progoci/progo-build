@@ -81,10 +81,7 @@ func (m *Manager) Setup(ctx context.Context, opts *Opts) (*Build, error) {
 			return nil, errors.Wrapf(err, "could not setup service %s", service.Name)
 		}
 
-		err = m.ExecuteSteps(ctx, container.ID, service.Steps)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to run steps for service %s", service.Name)
-		}
+		go m.ExecuteSteps(ctx, container.ID, service.Steps)
 
 		response.Containers = append(response.Containers, container)
 	}
@@ -122,10 +119,8 @@ func (m *Manager) setupContainer(ctx context.Context, image string,
 }
 
 // ExecuteSteps runs the steps in the configuration for a single service.
-func (m *Manager) ExecuteSteps(ctx context.Context, containerID string, steps []types.Step) error {
+func (m *Manager) ExecuteSteps(ctx context.Context, containerID string, steps []types.Step) {
 	for _, step := range steps {
-		return m.PluginManager.Run(ctx, containerID, step)
+		m.PluginManager.Run(ctx, containerID, step)
 	}
-
-	return nil
 }
