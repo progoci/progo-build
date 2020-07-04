@@ -20,7 +20,7 @@ func createHandler(app *app.App) gin.HandlerFunc {
 		buildID := primitive.NewObjectID()
 
 		opts := &build.Opts{
-			Image:             requestBody.Image,
+			Services:          requestBody.Services,
 			VirtualHostSuffix: app.Config.Get("PROXY_VIRTUAL_HOST_SUFFIX"),
 			NetworkPreffix:    app.Config.Get("DOCKER_NETWORK_PREFFIX"),
 			BuildID:           buildID.Hex(),
@@ -39,17 +39,10 @@ func createHandler(app *app.App) gin.HandlerFunc {
 			return
 		}
 
-		err = app.Build.Run(ctx, buildResponse.ContainerIDs[0], requestBody.Steps)
-		if err != nil {
-			c.JSON(500, ServerErrorResponse{
-				code:    500,
-				message: "Could not execute steps",
-			})
-
-			app.Log.Errorf("Could not run steps for build %s: %s", buildID.Hex(), err)
+		app.Log.Infof("Build %s was successfully created", buildID.Hex())
+		for i, container := range buildResponse.Containers {
+			app.Log.Infof("Service %s running at %s", requestBody.Services[i].Name, container.VirtualHost)
 		}
-
-		app.Log.Infof("Build running at %s", buildResponse.VirtualHost)
 
 		c.JSON(200, buildResponse)
 	}

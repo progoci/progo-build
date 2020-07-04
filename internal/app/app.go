@@ -10,7 +10,7 @@ import (
 
 // App contains dependencies used across the application.
 type App struct {
-	Build    *build.Build
+	Build    *build.Manager
 	Config   *config.Config
 	Database database.Database
 	Log      *log.Logger
