@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc"
 
 	"github.com/progoci/progo-build/internal/app"
 	"github.com/progoci/progo-build/internal/router"
@@ -14,6 +16,7 @@ import (
 	"github.com/progoci/progo-build/pkg/database"
 	"github.com/progoci/progo-build/pkg/docker"
 	"github.com/progoci/progo-build/pkg/plugin"
+	"github.com/progoci/progo-build/progolog"
 	"github.com/progoci/progo-core/config"
 )
 
@@ -35,7 +38,7 @@ func main() {
 	}
 
 	// Docker.
-	dockerClient, err := docker.New(logger, config.Get("PROXY_CONTAINER"))
+	dockerClient, err := docker.New(config.Get("PROXY_CONTAINER"))
 	if err != nil {
 		logger.Fatalf("could not establish connection to Docker daemon")
 	}
@@ -47,6 +50,15 @@ func main() {
 	// Build.
 	build := build.New(dockerClient, pluginManager)
 
+	// LogClient.
+	host := fmt.Sprintf("%s:%s", config.Get("PROGO_LOG_HOST"), config.Get("PROGO_LOG_PORT"))
+	conn, err := grpc.Dial(host, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("failed to dial log service: %v", err)
+	}
+	progolog.Start(conn)
+
+	// App.
 	app := &app.App{
 		Config:   config,
 		Build:    build,

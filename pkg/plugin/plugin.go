@@ -22,8 +22,11 @@ type Manager struct {
 
 // RunOpts are the options for running a step.
 type RunOpts struct {
+	BuildID      string
+	ServiceName  string
 	ContainerID  string
-	Step         types.Step
+	StepNumber   int32
+	Step         *types.Step
 	DockerClient docker.Docker
 }
 
@@ -50,14 +53,19 @@ func (manager *Manager) Get(key string) Plugin {
 }
 
 // Run runs a step using the correct plugin.
-func (manager *Manager) Run(ctx context.Context, containerID string, step types.Step) error {
+func (manager *Manager) Run(ctx context.Context, buildID string, serviceName string,
+	containerID string, stepNumber int, step *types.Step) error {
+
 	plugin := manager.Get(step.Plugin)
 	if plugin == nil {
 		return errors.New("plugin does not exist")
 	}
 
 	opts := &RunOpts{
+		BuildID:      buildID,
+		ServiceName:  serviceName,
 		ContainerID:  containerID,
+		StepNumber:   int32(stepNumber),
 		Step:         step,
 		DockerClient: manager.DockerClient,
 	}

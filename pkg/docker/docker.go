@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	dockerClient "github.com/docker/docker/client"
-	log "github.com/sirupsen/logrus"
 )
 
 // Docker describes a handler for docker-related tasks.
@@ -26,12 +25,11 @@ type Docker interface {
 // Client handles all docker-related tasks (implementation of Docker interface).
 type Client struct {
 	Conn             *dockerClient.Client
-	Logger           *log.Logger
 	ProxyContainerID string
 }
 
 // New creates a new docker client.
-func New(log *log.Logger, proxier string) (*Client, error) {
+func New(proxier string) (*Client, error) {
 	client, err := dockerClient.NewEnvClient()
 	if err != nil {
 		return nil, err
@@ -39,7 +37,6 @@ func New(log *log.Logger, proxier string) (*Client, error) {
 
 	return &Client{
 		Conn:             client,
-		Logger:           log,
 		ProxyContainerID: proxier,
 	}, nil
 }

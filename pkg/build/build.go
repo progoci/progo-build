@@ -22,7 +22,7 @@ type Manager struct {
 
 // Opts is the configuration to crate a new build.
 type Opts struct {
-	Services []types.Service
+	Services []*types.Service
 
 	// Used to generate the virtual host used by nginx-proxy for reverse proxy.
 	VirtualHostSuffix string
@@ -81,7 +81,7 @@ func (m *Manager) Setup(ctx context.Context, opts *Opts) (*Build, error) {
 			return nil, errors.Wrapf(err, "could not setup service %s", service.Name)
 		}
 
-		go m.ExecuteSteps(ctx, container.ID, service.Steps)
+		go m.ExecuteSteps(ctx, opts.BuildID, service.Name, container.ID, service.Steps)
 
 		response.Containers = append(response.Containers, container)
 	}
@@ -119,8 +119,11 @@ func (m *Manager) setupContainer(ctx context.Context, image string,
 }
 
 // ExecuteSteps runs the steps in the configuration for a single service.
-func (m *Manager) ExecuteSteps(ctx context.Context, containerID string, steps []types.Step) {
-	for _, step := range steps {
-		m.PluginManager.Run(ctx, containerID, step)
+func (m *Manager) ExecuteSteps(ctx context.Context, buildID string,
+	serviceName string, containerID string, steps []*types.Step) {
+
+	for i, step := range steps {
+		m.PluginManager.Run(ctx, buildID, serviceName, containerID, i+1, step)
 	}
+
 }

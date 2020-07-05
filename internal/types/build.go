@@ -6,18 +6,17 @@ type Step struct {
 	Plugin   string                 `json:"plugin"`
 	Commands []string               `json:"commands"`
 	Options  map[string]interface{} `json:"options"`
-	UUID     string                 `json:"uuid"`
 }
 
 // Service describes a service for a build.
 type Service struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
-	Steps []Step `json:"steps"`
+	Name  string  `json:"name"`
+	Image string  `json:"image"`
+	Steps []*Step `json:"steps"`
 }
 
 // Build describes a build entity.
 type Build struct {
-	ID       string    `json:"id,omitempty"`
-	Services []Service `json:"services"`
+	ID       string     `json:"id,omitempty"`
+	Services []*Service `json:"services"`
 }

@@ -3,14 +3,13 @@ package plugin
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/pkg/errors"
 
 	"github.com/progoci/progo-build/pkg/docker"
+	"github.com/progoci/progo-build/progolog"
 )
 
 // Command is a plugin for runinng commands in the shell.
@@ -53,7 +52,14 @@ func runCommand(ctx context.Context, opts *RunOpts, cmd []string) error {
 		return errors.Wrap(err, msg)
 	}
 
-	io.Copy(os.Stdout, response.Reader)
+	sendOpts := &progolog.SendOpts{
+		BuildID:     opts.BuildID,
+		ServiceName: opts.ServiceName,
+		StepName:    opts.Step.Name,
+		StepNumber:  opts.StepNumber,
+	}
+
+	progolog.Send(response.Reader, sendOpts)
 
 	return nil
 }
