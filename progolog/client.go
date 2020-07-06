@@ -23,6 +23,7 @@ type SendOpts struct {
 	ServiceName string
 	StepName    string
 	StepNumber  int32
+	Command     string
 }
 
 // Start starts the progolog client
@@ -55,6 +56,7 @@ func Send(buffer *bufio.Reader, opts *SendOpts) error {
 			ServiceName: opts.ServiceName,
 			StepName:    opts.StepName,
 			StepNumber:  opts.StepNumber,
+			Command:     opts.Command,
 			Body:        buf,
 		}
 		if err := stream.Send(log); err != nil {
