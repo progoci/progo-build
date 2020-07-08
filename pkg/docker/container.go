@@ -6,6 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/progoci/progo-core/uuid"
 )
 
 // Container describes a new container.
@@ -22,6 +23,11 @@ type CreateOpts struct {
 	HostConfig       *container.HostConfig
 	NetworkingConfig *network.NetworkingConfig
 	ContainerName    string
+}
+
+// GenerateContainerName creates a new name for a container.
+func (Client) GenerateContainerName() string {
+	return uuid.Get()
 }
 
 // ContainerConfig generates a configuration for creating a container.

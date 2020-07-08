@@ -9,6 +9,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Database is the connection to the database.
+type Database struct {
+	MongoClient *mongo.Database
+}
+
 // Opts is the information to connnect to the database.
 // If URI is set, it overwrites all other connection configuration.
 type Opts struct {
@@ -18,8 +23,8 @@ type Opts struct {
 	URI      string
 }
 
-// StartConnection creates connection to a MongoDB database.
-func StartConnection(opts *Opts) (*mongo.Database, error) {
+// New initializes a database instance.
+func New(opts *Opts) (*Database, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -34,5 +39,7 @@ func StartConnection(opts *Opts) (*mongo.Database, error) {
 		return nil, errors.Wrap(err, "failed to connect to database")
 	}
 
-	return client.Database(opts.Database), nil
+	return &Database{
+		MongoClient: client.Database(opts.Database),
+	}, nil
 }

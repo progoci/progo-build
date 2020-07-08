@@ -11,7 +11,6 @@ import (
 	"github.com/progoci/progo-build/internal/types"
 	"github.com/progoci/progo-build/pkg/docker"
 	"github.com/progoci/progo-build/pkg/plugin"
-	"github.com/progoci/progo-core/uuid"
 )
 
 // Manager is the build manager that creates docker networks and containers.
@@ -33,14 +32,14 @@ type Opts struct {
 
 // Container is information about the containers in a build.
 type Container struct {
-	ID          string
-	VirtualHost string
+	ID          string `bson:"id"`
+	VirtualHost string `bson:"virtualhost"`
 }
 
 // Build is the response to a setup.
 type Build struct {
-	ID         string
-	Containers []*Container
+	ID         string       `bson:"_id"`
+	Containers []*Container `bson:"containers"`
 }
 
 // New initilizes a new build manager.
@@ -57,7 +56,6 @@ func New(docker docker.Docker, pluginManager *plugin.Manager) *Manager {
 // containers from different builds. It then creates the containers for the
 // build and starts them.
 func (m *Manager) Setup(ctx context.Context, opts *Opts) (*Build, error) {
-
 	invalidImage := invalidImage(opts.Services)
 	if invalidImage != "" {
 		msg := fmt.Sprintf("image %s is not valid", invalidImage)
@@ -94,7 +92,7 @@ func (m *Manager) setupContainer(ctx context.Context, image string,
 	virtualhostSuffix string, networking *network.NetworkingConfig) (*Container, error) {
 
 	// Container configuration.
-	containerID := uuid.Get()
+	containerID := m.DockerClient.GenerateContainerName()
 	virtualhost := fmt.Sprintf("%s.%s", containerID, virtualhostSuffix)
 	config := m.DockerClient.ContainerConfig(image, virtualhost)
 

@@ -12,6 +12,6 @@ import (
 type App struct {
 	Build    *build.Manager
 	Config   *config.Config
-	Database database.Database
+	Database *database.Database
 	Log      *log.Logger
 }

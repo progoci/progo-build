@@ -12,6 +12,7 @@ import (
 
 // Docker describes a handler for docker-related tasks.
 type Docker interface {
+	GenerateContainerName() string
 	ContainerCreate(ctx context.Context, opts *CreateOpts) (string, error)
 	ContainerConfig(image string, virtualhost string) *container.Config
 	ContainerStart(ctx context.Context, containerID string, options dockerTypes.ContainerStartOptions) error

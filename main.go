@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 
 	"github.com/progoci/progo-build/internal/app"
@@ -34,7 +33,7 @@ func main() {
 	// Database.
 	database, err := getDatabase(config)
 	if err != nil {
-		logger.Fatalf("could not establish connection to database")
+		logger.Fatalf("could not establish connection to database: %v", err)
 	}
 
 	// Docker.
@@ -74,8 +73,8 @@ func main() {
 	r.Run(port)
 }
 
-// getDatabase returns a connection to the MongoDB database.
-func getDatabase(config *config.Config) (*mongo.Database, error) {
+// getDatabase returns a connection to the database.
+func getDatabase(config *config.Config) (*database.Database, error) {
 	opts := &database.Opts{
 		Host:     config.Get("DB_HOST"),
 		Port:     config.Get("DB_PORT"),
@@ -83,5 +82,5 @@ func getDatabase(config *config.Config) (*mongo.Database, error) {
 		URI:      config.Get("DB_URI"),
 	}
 
-	return database.StartConnection(opts)
+	return database.New(opts)
 }
